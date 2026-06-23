@@ -673,6 +673,37 @@ Examples:
     reason_decide.add_argument("--dir", type=str, help="Target directory (default: CWD)")
     reason_decide.add_argument("--save", action="store_true", help="Store decisions in knowledge base")
 
+    # ── bridge ──
+    bridge_parser = subparsers.add_parser("bridge", help="Manage agent bridge tasks")
+    bridge_sub = bridge_parser.add_subparsers(dest="bridge_command", help="Bridge commands")
+    # bridge create
+    br_create = bridge_sub.add_parser("create", help="Create a new bridge task")
+    br_create.add_argument("--dir", type=str, help="Target directory (default: CWD)")
+    br_create.add_argument("--title", "-t", type=str, required=True, help="Task title")
+    br_create.add_argument("--source", "-s", type=str, default="manual", choices=["chatgpt", "claude", "manual", "lynkmesh"], help="Task source")
+    br_create.add_argument("--assign", "-a", type=str, default="claude", choices=["claude", "chatgpt", "manual"], help="Who should execute")
+    br_create.add_argument("--module", "-m", type=str, default="", help="Target module")
+    br_create.add_argument("--priority", "-p", type=str, default="medium", choices=["critical", "high", "medium", "low"], help="Task priority")
+    br_create.add_argument("--description", type=str, default="", help="Task description")
+    br_create.add_argument("--instructions", type=str, default="", help="Execution instructions")
+    # bridge list
+    br_list = bridge_sub.add_parser("list", help="List bridge tasks")
+    br_list.add_argument("--dir", type=str, help="Target directory (default: CWD)")
+    br_list.add_argument("--status", type=str, default=None, choices=["pending", "executing", "done", "failed", "blocked"], help="Filter by status")
+    br_list.add_argument("--source", type=str, default=None, choices=["chatgpt", "claude", "manual", "lynkmesh"], help="Filter by source")
+    # bridge next
+    br_next = bridge_sub.add_parser("next", help="Pull next pending task")
+    br_next.add_argument("--dir", type=str, help="Target directory (default: CWD)")
+    br_next.add_argument("--assign", "-a", type=str, default="claude", help="Assignee to pull for")
+    br_next.add_argument("--claim", action="store_true", help="Also mark as executing")
+    # bridge done
+    br_done = bridge_sub.add_parser("done", help="Mark a task as done")
+    br_done.add_argument("--dir", type=str, help="Target directory (default: CWD)")
+    br_done.add_argument("--id", "-i", type=str, required=True, help="Task ID to complete")
+    br_done.add_argument("--note", type=str, default="", help="Completion note")
+    # bridge providers
+    br_providers = bridge_sub.add_parser("providers", help="List available providers")
+
     # ── changes ──
     changes_parser = subparsers.add_parser("changes", help="Detect and display code changes")
     changes_parser.add_argument("--dir", type=str, help="Target directory (default: CWD)")
@@ -933,6 +964,158 @@ def _knowledge_summary(target_dir: Path, args: argparse.Namespace) -> int:
 
 
 # ──────────────────────────────────────────────────────────────────────
+# Command: bridge
+# ──────────────────────────────────────────────────────────────────────
+
+
+def cmd_bridge(args: argparse.Namespace) -> int:
+    """Agent bridge task management."""
+
+    # providers doesn't need a target directory
+    if args.bridge_command == "providers":
+        return _bridge_providers()
+
+    target_dir = Path(args.dir).resolve() if args.dir else Path.cwd()
+
+    if args.bridge_command == "create":
+        return _bridge_create(target_dir, args)
+    elif args.bridge_command == "list":
+        return _bridge_list(target_dir, args)
+    elif args.bridge_command == "next":
+        return _bridge_next(target_dir, args)
+    elif args.bridge_command == "done":
+        return _bridge_done(target_dir, args)
+    else:
+        _safe_print("Usage: lynkmesh-ai bridge {create,list,next,done,providers}")
+        return 1
+
+
+def _bridge_create(target_dir: Path, args: argparse.Namespace) -> int:
+    """Create a new bridge task."""
+    from lynkmesh_ai.bridges.task_router import TaskRouter
+
+    router = TaskRouter(target_dir / ".ai")
+    task = router.create_task(
+        title=args.title,
+        source=args.source,
+        assigned_to=args.assign,
+        module=args.module,
+        priority=args.priority,
+        description=args.description,
+        instructions=args.instructions,
+    )
+    _safe_print(f"Task created:")
+    _safe_print(f"  ID:        {task.id}")
+    _safe_print(f"  Title:     {task.title}")
+    _safe_print(f"  Source:    {task.source}")
+    _safe_print(f"  Assign to: {task.assigned_to}")
+    _safe_print(f"  Priority:  {task.priority}")
+    _safe_print(f"  Status:    {task.status}")
+    return 0
+
+
+def _bridge_list(target_dir: Path, args: argparse.Namespace) -> int:
+    """List bridge tasks with optional filters."""
+    from lynkmesh_ai.bridges.task_router import TaskRouter
+
+    router = TaskRouter(target_dir / ".ai")
+    tasks = router.list_tasks(
+        status=args.status,
+        source=args.source,
+    )
+
+    if not tasks:
+        _safe_print("No tasks found.")
+        return 0
+
+    _safe_print(f"\n=== Bridge Tasks ({len(tasks)}) ===")
+    for t in tasks:
+        status_icon = {
+            "pending": "[ ]", "executing": "[>]", "done": "[x]",
+            "failed": "[!]", "blocked": "[b]",
+        }.get(t.status, "[?]")
+        _safe_print(
+            f"  {status_icon} {t.id:20s} "
+            f"{t.priority:8s} "
+            f"{t.source:10s}->{t.assigned_to:10s} "
+            f"{t.title[:60]}"
+        )
+    _safe_print(f"\n  Summary: {router.count_by_status()}")
+    return 0
+
+
+def _bridge_next(target_dir: Path, args: argparse.Namespace) -> int:
+    """Pull the next pending task for an assignee."""
+    from lynkmesh_ai.bridges.task_router import TaskRouter
+
+    router = TaskRouter(target_dir / ".ai")
+
+    if args.claim:
+        from lynkmesh_ai.bridges.claude_bridge import ClaudeBridge
+        bridge = ClaudeBridge(target_dir / ".ai")
+        task = bridge.pull_and_claim()
+    else:
+        task = router.get_next_task(assigned_to=args.assign)
+
+    if not task:
+        _safe_print(f"No pending tasks for '{args.assign}'.")
+        return 0
+
+    _safe_print(f"Next task:")
+    _safe_print(f"  ID:          {task.id}")
+    _safe_print(f"  Title:       {task.title}")
+    _safe_print(f"  Module:      {task.module or '(none)'}")
+    _safe_print(f"  Priority:    {task.priority}")
+    _safe_print(f"  Source:      {task.source}")
+    _safe_print(f"  Assigned to: {task.assigned_to}")
+    _safe_print(f"  Description: {task.description[:200] if task.description else '(none)'}")
+    if args.claim:
+        _safe_print(f"  Status:      executing (claimed)")
+    return 0
+
+
+def _bridge_done(target_dir: Path, args: argparse.Namespace) -> int:
+    """Mark a task as done."""
+    from lynkmesh_ai.bridges.task_router import TaskRouter
+
+    router = TaskRouter(target_dir / ".ai")
+    task = router.move_to_done(args.id)
+
+    if not task:
+        _safe_print(f"Task '{args.id}' not found.")
+        return 1
+
+    if args.note:
+        task.metadata["completion_note"] = args.note
+        router.update_task(task)
+
+    _safe_print(f"Task '{task.id}' marked as done.")
+    _safe_print(f"  Completed at: {task.completed_at}")
+    return 0
+
+
+def _bridge_providers() -> int:
+    """List all available providers from the registry."""
+    from lynkmesh_ai.bridges.registry import ProviderRegistry
+    from lynkmesh_ai.bridges.providers import (
+        ClaudeCodeProvider, AnthropicProvider, OpenAIProvider,
+        GeminiProvider, DeepSeekProvider, OllamaProvider,
+    )
+
+    registry = ProviderRegistry()
+    registry.register("claude-code", ClaudeCodeProvider())
+    registry.register("anthropic", AnthropicProvider())
+    registry.register("openai", OpenAIProvider())
+    registry.register("gemini", GeminiProvider())
+    registry.register("deepseek", DeepSeekProvider())
+    registry.register("ollama", OllamaProvider())
+
+    _safe_print(registry.report())
+    _safe_print(f"\nTotal: {registry.count()} providers registered")
+    return 0
+
+
+# ──────────────────────────────────────────────────────────────────────
 # Command: reasoning
 # ──────────────────────────────────────────────────────────────────────
 
@@ -1157,6 +1340,8 @@ def main(argv: Optional[list] = None) -> int:
         return cmd_knowledge(args)
     elif args.command == "reasoning":
         return cmd_reasoning(args)
+    elif args.command == "bridge":
+        return cmd_bridge(args)
     else:
         parser.print_help()
         return 0

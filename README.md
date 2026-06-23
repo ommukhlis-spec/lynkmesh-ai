@@ -159,6 +159,39 @@ lynkmesh-ai reasoning risk --module auth.service --dir examples/sample_project
 lynkmesh-ai semantic role --module auth.service --dir examples/sample_project
 ```
 
+## Provider Architecture
+
+LynkMesh AI is **provider-agnostic**. Any AI agent that implements the `AgentProvider` interface can join the orchestration bus.
+
+```
+ChatGPT (Producer)          LynkMesh AI Bus          Claude Code (Consumer)
+      │                          │                          │
+      │  create_chatgpt_task()   │                          │
+      ├─────────────────────────▶│                          │
+      │                          │  pull_next_task()        │
+      │                          │◀─────────────────────────┤
+      │                          │  mark_done(task, result) │
+      │                          │◀─────────────────────────┤
+      │  get_completed_tasks()   │                          │
+      │◀─────────────────────────┤                          │
+```
+
+| Provider | Role | Status |
+|----------|------|--------|
+| `claude-code` | Consumer (executor) | **Implemented** |
+| `chatgpt` | Producer (architect) | **Implemented** |
+| `anthropic` | Both | Skeleton (API docs ready) |
+| `openai` | Producer | Skeleton |
+| `gemini` | Both | Skeleton |
+| `deepseek` | Producer | Skeleton |
+| `ollama` | Both (local) | Skeleton |
+
+```bash
+lynkmesh-ai bridge providers    # List all available providers
+```
+
+See [Provider Architecture](docs/PROVIDER_ARCHITECTURE.md) for the extension guide.
+
 ## Key Capabilities
 
 ### Dependency Graph (v0.1)

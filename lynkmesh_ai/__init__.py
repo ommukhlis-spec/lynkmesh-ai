@@ -29,6 +29,11 @@ from lynkmesh_ai.semantic.analyzer import SemanticAnalyzer
 from lynkmesh_ai.knowledge.base import KnowledgeBase
 from lynkmesh_ai.knowledge.extractor import KnowledgeExtractor
 
+# Bridge layer (agent bus)
+from lynkmesh_ai.bridges.task_router import TaskRouter, BridgeTask
+from lynkmesh_ai.bridges.claude_bridge import ClaudeBridge
+from lynkmesh_ai.bridges.chatgpt_bridge import ChatGPTBridge
+
 # Reasoning layer
 from lynkmesh_ai.reasoning.architecture_analyzer import ArchitectureAnalyzer
 from lynkmesh_ai.reasoning.impact_analyzer import ImpactAnalyzer
@@ -58,6 +63,11 @@ __all__ = [
     # Knowledge
     "KnowledgeBase",
     "KnowledgeExtractor",
+    # Bridge (agent bus)
+    "TaskRouter",
+    "BridgeTask",
+    "ClaudeBridge",
+    "ChatGPTBridge",
     # Reasoning
     "ArchitectureAnalyzer",
     "ImpactAnalyzer",
