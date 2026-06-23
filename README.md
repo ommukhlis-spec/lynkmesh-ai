@@ -2,6 +2,10 @@
 
 **AI orchestration layer — from dependency graphs to architecture reasoning.**
 
+**Who is this for?** Senior engineers, software architects, and AI tool builders who need to understand large Python codebases — not just what imports what, but why the codebase is shaped that way and what to do about it.
+
+**LynkMesh AI is both a library and a CLI tool.** Import the Python modules to build your own analysis pipelines, or use the CLI to scan, analyze, and generate AI task files instantly. Zero dependencies — installs in seconds.
+
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)](requirements.txt)
@@ -102,22 +106,57 @@
 | **Bridges** | v0.1–0.3 | `claude_task.py`, `inbox.py` | Generate Claude Code task files, manage task lifecycle | How does this reach the execution engine? |
 | **Storage** | v0.1 | `state.py` | Operational state, run history, configuration | What's our operational state? |
 
+## Why LynkMesh AI?
+
+Existing tools answer **what** (what depends on what, what changed). LynkMesh AI answers **why** and **what to do**:
+
+| Tool | Answers |
+|------|---------|
+| `pydeps`, `importlab` | What imports what? |
+| `pylint`, `radon` | How complex is this code? |
+| `git diff` | What changed? |
+| **LynkMesh AI** | What does this codebase **mean**? Why is it **designed this way**? What **patterns** does it use? What **architectural role** does each module play? What is the **risk** of changing this? What **should we do** about it? |
+
+It does this without any external dependencies — no npm, no Docker, no API keys. Just Python 3.11+ and a codebase.
+
 ## Quick Start
 
 ```bash
-# Install (zero dependencies — stdlib only)
+# Clone
+git clone https://github.com/ommukhlis-spec/lynkmesh-ai.git
+cd lynkmesh-ai
+
+# Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate       # Linux/macOS
+# .venv\Scripts\activate        # Windows
+
+# Install (zero dependencies -- stdlib only, installs in seconds)
 pip install -e .
 
-# Scan a codebase
-lynkmesh-ai scan --dir ./src
+# Try it on the included example project
+lynkmesh-ai scan --dir examples/sample_project
+```
 
-# Run the full intelligence pipeline
-lynkmesh-ai run --module auth.service --semantic --reason
+**What just happened?** LynkMesh AI parsed 12 Python files, built a dependency graph with 33 edges, and saved it to `.ai/graph.json`. Now you can:
 
-# Inspect the architecture
-lynkmesh-ai reasoning analyze --dir ./src
-lynkmesh-ai reasoning risk --module auth.service --dir ./src
-lynkmesh-ai semantic role --module auth.service --dir ./src
+```bash
+# Analyze a specific module
+lynkmesh-ai run --module auth.service --dir examples/sample_project
+
+# Add semantic intelligence (design patterns, roles, domains)
+lynkmesh-ai run --module auth.service --dir examples/sample_project --semantic
+
+# Add architecture reasoning (risk, impact, recommendations)
+lynkmesh-ai run --module auth.service --dir examples/sample_project --reason
+
+# Full pipeline
+lynkmesh-ai run --module auth.service --dir examples/sample_project --semantic --reason
+
+# Inspect the architecture from the CLI
+lynkmesh-ai reasoning analyze --dir examples/sample_project
+lynkmesh-ai reasoning risk --module auth.service --dir examples/sample_project
+lynkmesh-ai semantic role --module auth.service --dir examples/sample_project
 ```
 
 ## Key Capabilities
