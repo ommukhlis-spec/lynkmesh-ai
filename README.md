@@ -6,6 +6,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)](requirements.txt)
 [![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)](CHANGELOG.md)
+[![CI](https://github.com/ommukhlis-spec/lynkmesh-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/ommukhlis-spec/lynkmesh-ai/actions/workflows/ci.yml)
+
+> ⚠️ **Safety Note:** LynkMesh AI is an **experimental AI orchestration framework** designed for development environments. It analyzes code, generates task files, and can invoke external AI agents. **It does NOT execute arbitrary code by default.** All autonomous actions require explicit CLI flags (`--semantic`, `--reason`). Generated task files in `.ai/inbox/` are plain Markdown — they are only executed if you explicitly feed them to an AI agent. Review all generated task files before execution. This tool is not intended for production deployment without additional guardrails.
 
 ---
 
@@ -250,6 +253,18 @@ lynkmesh-ai run --module auth.service --semantic --reason # full intelligence
 | Risk Dimensions | 6 |
 | Knowledge Fact Types | 6 |
 | External Dependencies | 0 |
+
+---
+
+## Security
+
+- **No remote code execution by default.** All analysis happens locally using the Python standard library. No external services are called.
+- **No credentials required.** LynkMesh AI does not use API keys, tokens, or authentication of any kind.
+- **Generated artifacts are Markdown.** Task files in `.ai/inbox/` are plain text. They cannot execute themselves — they must be explicitly consumed by an external agent.
+- **Explicit opt-in for all enrichment.** The `--semantic` and `--reason` flags are required for any analysis beyond basic dependency graphing.
+- **Zero runtime dependencies.** The entire codebase uses only the Python standard library, eliminating supply-chain risks.
+
+For security issues, please open a [private vulnerability report](https://github.com/ommukhlis-spec/lynkmesh-ai/security/advisories/new) rather than a public issue.
 
 ---
 

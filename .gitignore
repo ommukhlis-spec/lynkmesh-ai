@@ -1,21 +1,81 @@
+# ============================================================
 # Python
+# ============================================================
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+*.egg
 
-# Build
+# ============================================================
+# Build & Distribution
+# ============================================================
 build/
 dist/
 *.egg-info/
+*.whl
+wheelhouse/
 
-# LynkMesh generated AI artifacts
-.ai/*/
+# ============================================================
+# Virtual Environments
+# ============================================================
+venv/
+.venv/
+env/
+.env
+*.virtualenv
+
+# ============================================================
+# IDE & Editor
+# ============================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ============================================================
+# LynkMesh AI -- Generated Runtime Artifacts
+# ============================================================
+.ai/inbox/
+.ai/executing/
+.ai/done/
 .ai/*.json
+.ai/*.md
+
+# Recursive ignores for nested .ai/ directories
 **/.ai/graph.json
 **/.ai/state.json
 **/.ai/context_*.json
 **/.ai/semantic_graph.json
 **/.ai/knowledge_base.json
+**/.ai/inbox/
+**/.ai/executing/
+**/.ai/done/
 
-# Claude local settings
+# ============================================================
+# Claude Code -- Local Settings
+# ============================================================
 .claude/
+
+# ============================================================
+# Logs & Temp
+# ============================================================
+logs/
+*.log
+tmp/
+temp/
+*.tmp
+
+# ============================================================
+# Environment & Secrets
+# ============================================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.*
+secrets.*

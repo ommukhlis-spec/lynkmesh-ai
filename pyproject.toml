@@ -39,7 +39,7 @@ classifiers = [
 ]
 requires-python = ">=3.11"
 dependencies = [
-    # No external dependencies required — uses only Python stdlib
+    # No external dependencies required -- uses only Python stdlib
 ]
 
 [project.optional-dependencies]
@@ -52,8 +52,8 @@ dev = [
 lynkmesh-ai = "lynkmesh_ai.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/lynkmesh/lynkmesh-ai"
-Repository = "https://github.com/lynkmesh/lynkmesh-ai"
+Homepage = "https://github.com/ommukhlis-spec/lynkmesh-ai"
+Repository = "https://github.com/ommukhlis-spec/lynkmesh-ai"
 
 [tool.setuptools.packages.find]
 include = ["lynkmesh_ai", "lynkmesh_ai.*"]
