@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# LynkMesh generated AI artifacts
+.ai/*/
+.ai/*.json
+**/.ai/graph.json
+**/.ai/state.json
+**/.ai/context_*.json
+**/.ai/semantic_graph.json
+**/.ai/knowledge_base.json
+
+# Claude local settings
+.claude/

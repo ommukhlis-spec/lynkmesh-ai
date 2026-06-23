@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lynkmesh-ai"
+version = "0.3.0"
+description = "AI orchestration layer with semantic code intelligence and architecture reasoning"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "LynkMesh AI Team"}
+]
+keywords = [
+    "ai",
+    "code-analysis",
+    "dependency-graph",
+    "claude-code",
+    "orchestration",
+    "architecture",
+    "design-patterns",
+    "semantic-analysis",
+    "code-intelligence",
+    "risk-assessment",
+    "architecture-decision-records",
+    "technical-debt",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Code Analysis",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Quality Assurance",
+]
+requires-python = ">=3.11"
+dependencies = [
+    # No external dependencies required — uses only Python stdlib
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+
+[project.scripts]
+lynkmesh-ai = "lynkmesh_ai.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/lynkmesh/lynkmesh-ai"
+Repository = "https://github.com/lynkmesh/lynkmesh-ai"
+
+[tool.setuptools.packages.find]
+include = ["lynkmesh_ai", "lynkmesh_ai.*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]

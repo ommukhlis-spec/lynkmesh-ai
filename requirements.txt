@@ -1,0 +1,10 @@
+# LynkMesh AI — zero external dependencies
+#
+# The entire system runs on Python 3.11+ standard library:
+#   - ast (Python parser)
+#   - subprocess (git integration)
+#   - json, pathlib, dataclasses, argparse, logging
+#
+# Optional dev dependencies:
+#   pytest>=7.0
+#   pytest-cov>=4.0
