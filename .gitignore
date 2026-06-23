@@ -39,21 +39,17 @@ Thumbs.db
 # ============================================================
 # LynkMesh AI -- Generated Runtime Artifacts
 # ============================================================
-.ai/inbox/
-.ai/executing/
-.ai/done/
-.ai/*.json
-.ai/*.md
+.ai/
+**/.ai/
 
-# Recursive ignores for nested .ai/ directories
-**/.ai/graph.json
-**/.ai/state.json
-**/.ai/context_*.json
-**/.ai/semantic_graph.json
-**/.ai/knowledge_base.json
-**/.ai/inbox/
-**/.ai/executing/
-**/.ai/done/
+# ============================================================
+# Test & Coverage Artifacts
+# ============================================================
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+*.cover
 
 # ============================================================
 # Claude Code -- Local Settings
